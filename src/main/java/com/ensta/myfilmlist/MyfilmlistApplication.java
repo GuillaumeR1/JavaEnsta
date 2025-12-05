@@ -3,8 +3,6 @@ package com.ensta.myfilmlist;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.ensta.myfilmlist.model.Film;
-
 /**
  * Lancement de l'application Spring Boot et du serveur d'application.
  */

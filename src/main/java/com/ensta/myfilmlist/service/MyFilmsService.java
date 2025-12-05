@@ -26,4 +26,7 @@ public interface MyFilmsService {
     RealisateurDTO findRealisateurByNomAndPrenom(String nom, String prenom) throws ServiceException;
     void deleteFilm(long id) throws ServiceException;
 
+    RealisateurDTO createRealisateur(RealisateurDTO realisateur) throws ServiceException;
+    RealisateurDTO findRealisateurDTOById(long id) throws ServiceException;
+
 }

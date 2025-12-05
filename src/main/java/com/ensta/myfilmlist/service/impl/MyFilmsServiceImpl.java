@@ -11,7 +11,6 @@ import com.ensta.myfilmlist.model.Realisateur;
 import com.ensta.myfilmlist.service.MyFilmsService;
 import com.ensta.myfilmlist.dto.FilmDTO;
 import com.ensta.myfilmlist.dto.RealisateurDTO;
-import com.ensta.myfilmlist.mapper.FilmDTOMapper;
 import com.ensta.myfilmlist.mapper.FilmMapper;
 import com.ensta.myfilmlist.mapper.RealisateurDTOMapper;
 
@@ -164,18 +163,14 @@ public class MyFilmsServiceImpl implements MyFilmsService {
     @Override
     public void deleteFilm(long id) throws ServiceException {
         try {
-            // 1. Retrouver le film
             Film film = filmDAO.findById(id);
             if (film == null) {
-                return; // rien à faire
+                return;
             }
 
             long realisateurId = film.getRealisateurId();
 
-            // 2. Supprimer le film
             filmDAO.delete(id);
-
-            // 3. Recalculer les films restants du réalisateur
             Optional<Realisateur> opt = realisateurDAO.findById(realisateurId);
             if (opt.isEmpty()) return;
 
@@ -183,15 +178,44 @@ public class MyFilmsServiceImpl implements MyFilmsService {
 
             List<Film> filmsRestants = filmDAO.findByRealisateurId(realisateurId);
             r.setFilmsRealises(filmsRestants);
-
-            // 4. Mettre à jour le statut célèbre
             updateRealisateurCelebre(r);
-
-            // 5. Sauvegarder en base
             realisateurDAO.update(r);
 
         } catch (Exception e) {
             throw new ServiceException("Erreur lors de la suppression du film avec id=" + id, e);
+        }
+    }
+
+    @Override
+    public RealisateurDTO createRealisateur(RealisateurDTO dto) throws ServiceException {
+        try {
+            Realisateur real = RealisateurDTOMapper.convertRealisateurDTOToRealisateur(dto);
+            real.setFilmsRealises(List.of());
+            real = realisateurDAO.save(real);
+
+            return RealisateurDTOMapper.convertRealisateurToRealisateurDTO(real);
+
+        } catch (Exception e) {
+            throw new ServiceException("Erreur lors de la création du réalisateur.", e);
+        }
+    }
+
+    @Override
+    public RealisateurDTO findRealisateurDTOById(long id) throws ServiceException {
+        try {
+            Optional<Realisateur> opt = realisateurDAO.findById(id);
+            if (opt.isEmpty()) return null;
+
+            Realisateur real = opt.get();
+
+            // Mettre à jour la célébrité avant de retourner le DTO
+            updateRealisateurCelebre(real);
+            realisateurDAO.update(real);
+
+            return RealisateurDTOMapper.convertRealisateurToRealisateurDTO(real);
+
+        } catch (Exception e) {
+            throw new ServiceException("Erreur lors de findRealisateurDTOById.", e);
         }
     }
 

@@ -22,6 +22,7 @@ public class JdbcRealisateurDAO implements RealisateurDAO {
     private static final String FIND_BY_ID_QUERY = "SELECT id, nom, prenom, date_naissance FROM Realisateur WHERE id = ?";
     private static final String FIND_BY_NOM_PRENOM_QUERY = "SELECT id, nom, prenom, date_naissance FROM Realisateur WHERE nom = ? AND prenom = ?";
     private static final String UPDATE_QUERY = "UPDATE Realisateur SET nom = ?, prenom = ?, date_naissance = ?, celebre = ? WHERE id = ?";
+    private static final String INSERT_QUERY = "INSERT INTO Realisateur (nom, prenom, date_naissance, celebre) VALUES (?, ?, ?, ?)";
 
     private RowMapper<Realisateur> realisateurMapper = (rs, rowNum) -> {
         Realisateur r = new Realisateur();
@@ -84,6 +85,22 @@ public class JdbcRealisateurDAO implements RealisateurDAO {
             realisateur.isCelebre(),
             realisateur.getId()
         );
+        return realisateur;
+    }
+
+    @Override
+    public Realisateur save(Realisateur realisateur) {
+        jdbcTemplate.update(
+            INSERT_QUERY,
+            realisateur.getNom(),
+            realisateur.getPrenom(),
+            java.sql.Date.valueOf(realisateur.getDateNaissance()),
+            realisateur.isCelebre()
+        );
+
+        Long id = jdbcTemplate.queryForObject("SELECT MAX(id) FROM Realisateur", Long.class);
+        realisateur.setId(id);
+
         return realisateur;
     }
 }

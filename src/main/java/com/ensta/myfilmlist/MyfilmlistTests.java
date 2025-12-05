@@ -288,4 +288,44 @@ public class MyfilmlistTests {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+ * Test de la création d'un nouveau réalisateur.
+ */
+public void createRealisateurTest() {
+    try {
+        // 1. Création du DTO à envoyer
+        RealisateurDTO nouveau = new RealisateurDTO();
+        nouveau.setNom("Villeneuve");
+        nouveau.setPrenom("Denis");
+        nouveau.setDateNaissance(LocalDate.of(1967, 10, 3));
+        nouveau.setCelebre(false); // par défaut
+
+        // 2. Appel du service
+        RealisateurDTO saved = myFilmsService.createRealisateur(nouveau);
+
+        System.out.println("ID du nouveau réalisateur : " + saved.getId());
+        System.out.println("Réalisateur sauvegardé : " + saved);
+
+        // 3. Vérification en base
+        RealisateurDTO found =
+            myFilmsService.findRealisateurDTOById(saved.getId());
+
+        System.out.println("Réalisateur trouvé : " + found);
+
+        // 4. Tests attendus
+        if (found == null) {
+            System.out.println("Le réalisateur n’a pas été retrouvé !");
+            return;
+        }
+        System.out.println("Nom : " + found.getNom());        // Denis
+        System.out.println("Prénom : " + found.getPrenom());  // Villeneuve
+        System.out.println("Célèbre ? " + found.isCelebre()); // false
+        System.out.println("Test de création du réalisateur succès");
+
+    } catch (ServiceException e) {
+        e.printStackTrace();
+    }
+}
+
 }

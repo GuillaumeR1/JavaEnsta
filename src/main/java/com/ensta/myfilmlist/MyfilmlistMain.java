@@ -48,6 +48,9 @@ public class MyfilmlistMain {
 
 		System.out.println("--------------------");
 		myFilmListTests.updateRealisateurCelebre();
+
+		System.out.println("--------------------");
+		myFilmListTests.createRealisateurTest();
 	}
 
 }
