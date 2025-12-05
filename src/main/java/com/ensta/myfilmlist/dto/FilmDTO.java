@@ -45,8 +45,8 @@ public class FilmDTO {
     }
 	
 	@Override
-	public String toString() {
-		return "FilmDTO [id=" + id + ", titre=" + titre + ", duree=" + duree + "]";
-	}
+public String toString() {
+    return "FilmDTO [id=" + id + ", titre=" + titre + ", duree=" + duree + ", realisateur=" + realisateur + "]";
+}
 
 }

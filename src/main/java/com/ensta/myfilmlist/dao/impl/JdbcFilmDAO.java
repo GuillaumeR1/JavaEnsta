@@ -29,28 +29,28 @@ public class JdbcFilmDAO implements FilmDAO {
     private JdbcTemplate jdbcTemplate = ConnectionManager.getJdbcTemplate();
 
     private RowMapper<Film> filmMapper = (rs, rowNum) -> {
-        Film film = new Film();
-        film.setId(rs.getLong("film_id"));
-        film.setTitre(rs.getString("titre"));
-        film.setDuree(rs.getInt("duree"));
+		Film film = new Film();
+		film.setId(rs.getLong("film_id"));
+		film.setTitre(rs.getString("titre"));
+		film.setDuree(rs.getInt("duree"));
 
-        long realisateurId = rs.getLong("realisateur_id");
-        film.setRealisateurId(realisateurId);
+		long realisateurId = rs.getLong("realisateur_id");
+		film.setRealisateurId(realisateurId);
 
-        if (realisateurId != 0) {
-            Realisateur realisateur = new Realisateur();
-            realisateur.setId(realisateurId);
-            realisateur.setNom(rs.getString("realisateur_nom"));
-            realisateur.setPrenom(rs.getString("realisateur_prenom"));
-            realisateur.setDateNaissance(
-                rs.getDate("realisateur_date_naissance").toLocalDate()
-            );
-            realisateur.setCelebre(rs.getBoolean("realisateur_celebre"));
-            film.setRealisateur(realisateur);
-        }
+		if (realisateurId != 0) {
+			Realisateur realisateur = new Realisateur();
+			realisateur.setId(realisateurId);
+			realisateur.setNom(rs.getString("realisateur_nom"));
+			realisateur.setPrenom(rs.getString("realisateur_prenom"));
+			realisateur.setDateNaissance(
+				rs.getDate("realisateur_date_naissance").toLocalDate()
+			);
+			realisateur.setCelebre(rs.getBoolean("realisateur_celebre"));
+			film.setRealisateur(realisateur);
+		}
 
-        return film;
-    };
+		return film;
+	};
 
 
     @Override
@@ -142,5 +142,4 @@ public class JdbcFilmDAO implements FilmDAO {
     public void delete(long id) {
         jdbcTemplate.update(DELETE_QUERY, id);
     }
-
 }
