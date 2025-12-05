@@ -150,13 +150,6 @@ public class MyFilmsServiceImpl implements MyFilmsService {
             film.setRealisateur(realisateur);
             film = filmDAO.create(film);
             List<Film> filmsDuRealisateur = filmDAO.findByRealisateurId(realisateur.getId());
-            
-            //Test
-            System.out.println("DEBUG → films trouvés pour réal " + realisateur.getId() + " = " + filmsDuRealisateur.size());
-                for (Film f : filmsDuRealisateur) {
-                    System.out.println(" - " + f.getTitre());
-                }
-            
             realisateur.setFilmsRealises(filmsDuRealisateur);
             updateRealisateurCelebre(realisateur);
             realisateurDAO.update(realisateur);
