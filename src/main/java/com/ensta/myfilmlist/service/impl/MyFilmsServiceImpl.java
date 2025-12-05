@@ -10,8 +10,10 @@ import com.ensta.myfilmlist.model.Film;
 import com.ensta.myfilmlist.model.Realisateur;
 import com.ensta.myfilmlist.service.MyFilmsService;
 import com.ensta.myfilmlist.dto.FilmDTO;
+import com.ensta.myfilmlist.dto.RealisateurDTO;
 import com.ensta.myfilmlist.mapper.FilmDTOMapper;
 import com.ensta.myfilmlist.mapper.FilmMapper;
+import com.ensta.myfilmlist.mapper.RealisateurDTOMapper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,13 +46,6 @@ public class MyFilmsServiceImpl implements MyFilmsService {
 
     @Override
     public long calculerDureeTotale(List<Film> films) {
-        /*long total = 0;
-
-        for (Film film : films) {
-            total += film.getDuree();
-        }
-
-        return total;*/
         return films.stream()
             .mapToInt(Film::getDuree)
             .sum();
@@ -58,16 +53,6 @@ public class MyFilmsServiceImpl implements MyFilmsService {
 
     @Override
     public double calculerNoteMoyenne(double[] notes) {
-        /*if (notes == null || notes.length == 0) {
-            return 0;
-        }
-
-        double somme = 0;
-        for (double note : notes) {
-            somme += note;
-        }
-
-        double moyenne = somme / notes.length;*/
         double moyenne = Arrays.stream(notes)
             .average()
             .orElse(0.0);
@@ -97,7 +82,7 @@ public class MyFilmsServiceImpl implements MyFilmsService {
         try {
             List<Film> films = filmDAO.findAll();
             return films.stream()
-                    .map(FilmDTOMapper::convertFilmToFilmDTO)
+                    .map(FilmMapper::convertFilmToFilmDTO)
                     .toList();
         } catch (Exception e) {
             throw new ServiceException("Erreur lors de la récupération de la liste des films.", e);
@@ -112,7 +97,7 @@ public class MyFilmsServiceImpl implements MyFilmsService {
             if (film == null) {
                 return null;
             }
-            return FilmDTOMapper.convertFilmToFilmDTO(film);
+            return FilmMapper.convertFilmToFilmDTO(film);
         } catch (Exception e) {
             throw new ServiceException("Erreur lors de findFilmById(" + id + ")", e);
         }
@@ -139,9 +124,15 @@ public class MyFilmsServiceImpl implements MyFilmsService {
     }
 
     @Override
-    public Realisateur findRealisateurByNomAndPrenom(String nom, String prenom) throws ServiceException {
+    public RealisateurDTO findRealisateurByNomAndPrenom(String nom, String prenom) throws ServiceException {
         try {
-            return realisateurDAO.findByNomAndPrenom(nom, prenom);
+            Realisateur real = realisateurDAO.findByNomAndPrenom(nom, prenom);
+
+            if (real == null) return null;
+            updateRealisateurCelebre(real);
+            realisateurDAO.update(real);
+            return RealisateurDTOMapper.convertRealisateurToRealisateurDTO(real);
+
         } catch (Exception e) {
             throw new ServiceException("Erreur findRealisateurByNomAndPrenom.", e);
         }
@@ -155,10 +146,23 @@ public class MyFilmsServiceImpl implements MyFilmsService {
             if (realisateurOpt.isEmpty()) {
                 throw new ServiceException("Aucun réalisateur trouvé avec id=" + form.getRealisateurId());
             }
-            film.setRealisateurId(form.getRealisateurId());
-            film.setRealisateur(realisateurOpt.get());
+            Realisateur realisateur = realisateurOpt.get();
+            film.setRealisateur(realisateur);
             film = filmDAO.create(film);
-            return FilmDTOMapper.convertFilmToFilmDTO(film);
+            List<Film> filmsDuRealisateur = filmDAO.findByRealisateurId(realisateur.getId());
+            
+            //Test
+            System.out.println("DEBUG → films trouvés pour réal " + realisateur.getId() + " = " + filmsDuRealisateur.size());
+                for (Film f : filmsDuRealisateur) {
+                    System.out.println(" - " + f.getTitre());
+                }
+            
+            realisateur.setFilmsRealises(filmsDuRealisateur);
+            updateRealisateurCelebre(realisateur);
+            realisateurDAO.update(realisateur);
+
+            return FilmMapper.convertFilmToFilmDTO(film);
+
         } catch (Exception e) {
             throw new ServiceException("Erreur lors de la création du film.", e);
         }
@@ -167,9 +171,35 @@ public class MyFilmsServiceImpl implements MyFilmsService {
     @Override
     public void deleteFilm(long id) throws ServiceException {
         try {
+            // 1. Retrouver le film
+            Film film = filmDAO.findById(id);
+            if (film == null) {
+                return; // rien à faire
+            }
+
+            long realisateurId = film.getRealisateurId();
+
+            // 2. Supprimer le film
             filmDAO.delete(id);
+
+            // 3. Recalculer les films restants du réalisateur
+            Optional<Realisateur> opt = realisateurDAO.findById(realisateurId);
+            if (opt.isEmpty()) return;
+
+            Realisateur r = opt.get();
+
+            List<Film> filmsRestants = filmDAO.findByRealisateurId(realisateurId);
+            r.setFilmsRealises(filmsRestants);
+
+            // 4. Mettre à jour le statut célèbre
+            updateRealisateurCelebre(r);
+
+            // 5. Sauvegarder en base
+            realisateurDAO.update(r);
+
         } catch (Exception e) {
             throw new ServiceException("Erreur lors de la suppression du film avec id=" + id, e);
         }
     }
+
 }

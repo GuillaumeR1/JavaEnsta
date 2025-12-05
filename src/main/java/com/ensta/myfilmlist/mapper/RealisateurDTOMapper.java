@@ -23,7 +23,6 @@ public class RealisateurDTOMapper {
         dto.setPrenom(realisateur.getPrenom());
         dto.setDateNaissance(realisateur.getDateNaissance());
         dto.setCelebre(realisateur.isCelebre());
-        // dto.setFilmRealises(...) // pas mappé ici, comme indiqué dans le TP
 
         return dto;
     }
@@ -46,7 +45,6 @@ public class RealisateurDTOMapper {
         realisateur.setPrenom(dto.getPrenom());
         realisateur.setDateNaissance(dto.getDateNaissance());
         realisateur.setCelebre(dto.isCelebre());
-        // realisateur.setFilmRealises(...) // pas mappé ici non plus
 
         return realisateur;
     }
