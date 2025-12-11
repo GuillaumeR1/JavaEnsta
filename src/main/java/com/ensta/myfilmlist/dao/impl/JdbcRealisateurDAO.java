@@ -10,7 +10,9 @@ import org.springframework.jdbc.core.RowMapper;
 import com.ensta.myfilmlist.dao.RealisateurDAO;
 import com.ensta.myfilmlist.model.Realisateur;
 import com.ensta.myfilmlist.persistence.ConnectionManager;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class JdbcRealisateurDAO implements RealisateurDAO {
 
     private JdbcTemplate jdbcTemplate = ConnectionManager.getJdbcTemplate();
@@ -58,7 +60,7 @@ public class JdbcRealisateurDAO implements RealisateurDAO {
             );
             return Optional.of(r);
         } catch (EmptyResultDataAccessException e) {
-            return Optional.empty(); // ✔️ demandé par l’énoncé
+            return Optional.empty();
         }
     }
 }

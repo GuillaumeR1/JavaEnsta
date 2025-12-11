@@ -13,10 +13,12 @@ import com.ensta.myfilmlist.model.Film;
 import com.ensta.myfilmlist.model.Realisateur;
 import com.ensta.myfilmlist.persistence.ConnectionManager;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
+import org.springframework.stereotype.Repository;
+@Repository
 public class JdbcFilmDAO implements FilmDAO {
     
     private static final String FIND_ALL_QUERY =
@@ -26,7 +28,10 @@ public class JdbcFilmDAO implements FilmDAO {
     "FROM Film f " +
     "LEFT JOIN Realisateur r ON f.realisateur_id = r.id";
     //private DataSource dataSource = ConnectionManager.getDataSource();
-    private JdbcTemplate jdbcTemplate = ConnectionManager.getJdbcTemplate();
+    // Ancienne initialisation sans Spring Boot
+    @Autowired 
+    private JdbcTemplate jdbcTemplate;
+    //private JdbcTemplate jdbcTemplate = ConnectionManager.getJdbcTemplate();
 
     private RowMapper<Film> filmMapper = (rs, rowNum) -> {
 		Film film = new Film();

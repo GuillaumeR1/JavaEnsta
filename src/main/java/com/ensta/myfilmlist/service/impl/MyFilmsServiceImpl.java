@@ -17,6 +17,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
 public class MyFilmsServiceImpl implements MyFilmsService {
 
     public static final int NB_FILMS_MIN_REALISATEUR_CELEBRE = 3;
@@ -89,7 +95,7 @@ public class MyFilmsServiceImpl implements MyFilmsService {
             throw new ServiceException("Erreur lors de la mise à jour des réalisateurs célèbres.", e);
         }
     }
-
+    @Autowired
     private FilmDAO filmDAO = new JdbcFilmDAO();
 
     @Override
@@ -117,7 +123,7 @@ public class MyFilmsServiceImpl implements MyFilmsService {
             throw new ServiceException("Erreur lors de findFilmById(" + id + ")", e);
         }
     }
-
+    @Autowired
     private RealisateurDAO realisateurDAO = new JdbcRealisateurDAO();
 
     @Override
@@ -148,10 +154,12 @@ public class MyFilmsServiceImpl implements MyFilmsService {
     }
 
     @Override
+    @Transactional // createFilm et deleteFilm sont transactionnelles pour garantir l'atomicité et la cohérence des opérations.
     public FilmDTO createFilm(FilmForm form) throws ServiceException {
         try {
             Film film = FilmMapper.convertFilmFormToFilm(form);
             Optional<Realisateur> realisateurOpt = realisateurDAO.findById(form.getRealisateurId());
+            // Vérification de l'existence du réalisateur
             if (realisateurOpt.isEmpty()) {
                 throw new ServiceException("Aucun réalisateur trouvé avec id=" + form.getRealisateurId());
             }
@@ -165,6 +173,7 @@ public class MyFilmsServiceImpl implements MyFilmsService {
     }
 
     @Override
+    @Transactional
     public void deleteFilm(long id) throws ServiceException {
         try {
             filmDAO.delete(id);

@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.ensta.myfilmlist.model.Film;
 import com.ensta.myfilmlist.model.Realisateur;
 import com.ensta.myfilmlist.service.MyFilmsService;
@@ -17,9 +20,11 @@ import com.ensta.myfilmlist.form.FilmForm;
 /**
  * Classe de tests du service MyFilmsServiceImpl.
  */
+@Component
 public class MyfilmlistTests {
 
 	/** Initialisation du service pour les traitements de l'application MyFilms */
+	@Autowired
 	private MyFilmsService myFilmsService = new MyFilmsServiceImpl();
 
 	/**
