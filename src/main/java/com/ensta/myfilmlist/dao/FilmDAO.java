@@ -2,6 +2,7 @@ package com.ensta.myfilmlist.dao;
 
 import java.util.List;
 import com.ensta.myfilmlist.model.Film;
+import java.util.Optional;
 
 public interface FilmDAO {
     
@@ -9,5 +10,8 @@ public interface FilmDAO {
     Film findById(long id);
     Film create(Film film);
     void delete(long id);
+    Optional<Film> findOptionalById(long id);
+    void delete(Film film);
+    List<Film> findByRealisateurId(long realisateurId);
 
 }

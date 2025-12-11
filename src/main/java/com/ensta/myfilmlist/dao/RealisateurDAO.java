@@ -9,9 +9,7 @@ public interface RealisateurDAO {
     // Déjà défini dans l'énoncé
     List<Realisateur> findAll(); 
     Optional<Realisateur> findById(long id);
-    Realisateur findByNomAndPrenom(String nom, String prenom); 
-    
-    // Pour le bonus : création et modification
-    //Realisateur save(Realisateur realisateur);    
-    //Realisateur update(Realisateur realisateur); 
+    Realisateur findByNomAndPrenom(String nom, String prenom);
+    Realisateur update(Realisateur realisateur);
+    Realisateur save(Realisateur realisateur);
 }

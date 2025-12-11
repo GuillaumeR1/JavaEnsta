@@ -49,7 +49,7 @@ public class Realisateur {
         return filmRealises;
     }
 
-    public void setFilmRealises(List<Film> filmRealises) {
+    public void setFilmsRealises(List<Film> filmRealises) {
         this.filmRealises = filmRealises;
     }
 

@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.ensta.myfilmlist.dao.FilmDAO;
 import com.ensta.myfilmlist.model.Film;
@@ -22,17 +23,32 @@ import org.springframework.stereotype.Repository;
 public class JdbcFilmDAO implements FilmDAO {
     
     private static final String FIND_ALL_QUERY =
-    "SELECT f.id as film_id, f.titre, f.duree, " +
-    "r.id as realisateur_id, r.nom as realisateur_nom, r.prenom as realisateur_prenom, " +
-    "r.date_naissance as realisateur_date_naissance, r.celebre as realisateur_celebre " +
-    "FROM Film f " +
-    "LEFT JOIN Realisateur r ON f.realisateur_id = r.id";
-    //private DataSource dataSource = ConnectionManager.getDataSource();
-    // Ancienne initialisation sans Spring Boot
-    @Autowired 
-    private JdbcTemplate jdbcTemplate;
-    //private JdbcTemplate jdbcTemplate = ConnectionManager.getJdbcTemplate();
+        "SELECT f.id as film_id, f.titre, f.duree, " +
+        "r.id as realisateur_id, r.nom as realisateur_nom, r.prenom as realisateur_prenom, " +
+        "r.date_naissance as realisateur_date_naissance, r.celebre as realisateur_celebre " +
+        "FROM Film f " +
+        "LEFT JOIN Realisateur r ON f.realisateur_id = r.id";
+    private static final String FIND_BY_ID_QUERY =
+        "SELECT f.id as film_id, f.titre, f.duree, " +
+        "r.id as realisateur_id, r.nom as realisateur_nom, r.prenom as realisateur_prenom, " +
+        "r.date_naissance as realisateur_date_naissance, r.celebre as realisateur_celebre " +
+        "FROM Film f " +
+        "LEFT JOIN Realisateur r ON f.realisateur_id = r.id " +
+        "WHERE f.id = ?";
+    private static final String INSERT_QUERY =
+        "INSERT INTO Film (titre, duree, realisateur_id) VALUES (?, ?, ?)";
+    private static final String DELETE_QUERY = "DELETE FROM Film WHERE id = ?";
+    private static final String FIND_BY_REALISATEUR_ID_QUERY =
+        "SELECT f.id as film_id, f.titre, f.duree, " +
+        "r.id as realisateur_id, r.nom as realisateur_nom, r.prenom as realisateur_prenom, " +
+        "r.date_naissance as realisateur_date_naissance, r.celebre as realisateur_celebre " +
+        "FROM Film f " +
+        "LEFT JOIN Realisateur r ON f.realisateur_id = r.id " +
+        "WHERE f.realisateur_id = ?";
 
+    private JdbcTemplate jdbcTemplate = ConnectionManager.getJdbcTemplate();
+    
+    
     private RowMapper<Film> filmMapper = (rs, rowNum) -> {
 		Film film = new Film();
 		film.setId(rs.getLong("film_id"));
@@ -84,17 +100,6 @@ public class JdbcFilmDAO implements FilmDAO {
         return jdbcTemplate.query(FIND_ALL_QUERY, filmMapper);
     }
 
-    private static final String FIND_BY_ID_QUERY =
-        "SELECT f.id as film_id, f.titre, f.duree, " +
-        "r.id as realisateur_id, r.nom as realisateur_nom, r.prenom as realisateur_prenom, " +
-        "r.date_naissance as realisateur_date_naissance, r.celebre as realisateur_celebre " +
-        "FROM Film f " +
-        "LEFT JOIN Realisateur r ON f.realisateur_id = r.id " +
-        "WHERE f.id = ?";
-    private static final String INSERT_QUERY =
-        "INSERT INTO Film (titre, duree, realisateur_id) VALUES (?, ?, ?)";
-    private static final String DELETE_QUERY = "DELETE FROM Film WHERE id = ?";
-
     @Override
     public Film findById(long id) {
         try {
@@ -129,7 +134,6 @@ public class JdbcFilmDAO implements FilmDAO {
         }
     }
 
-
     @Override
     public Film create(Film film) {
         jdbcTemplate.update(
@@ -147,4 +151,32 @@ public class JdbcFilmDAO implements FilmDAO {
     public void delete(long id) {
         jdbcTemplate.update(DELETE_QUERY, id);
     }
+
+    @Override
+    public Optional<Film> findOptionalById(long id) {
+        try {
+            Film film = findById(id);
+            return Optional.ofNullable(film);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void delete(Film film) {
+        if (film == null) {
+            return;
+        }
+        delete(film.getId());
+    }
+
+    @Override
+    public List<Film> findByRealisateurId(long realisateurId) {
+        return jdbcTemplate.query(
+            FIND_BY_REALISATEUR_ID_QUERY,
+            filmMapper,
+            realisateurId
+        );
+    }
+
 }
