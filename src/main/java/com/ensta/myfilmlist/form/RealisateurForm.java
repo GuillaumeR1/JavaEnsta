@@ -1,22 +1,45 @@
 package com.ensta.myfilmlist.form;
 
+import java.time.LocalDate;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 
 public class RealisateurForm {
-    
-    // Un nom est non null et non vide
-    @NotBlank(message = "Le nom du réalisateur ne doit pas être vide.")
+
+    @NotBlank(message = "Le nom est obligatoire")
     private String nom;
-    
-    // Un prénom est non null et non vide
-    @NotBlank(message = "Le prénom du réalisateur ne doit pas être vide.")
+
+    @NotBlank(message = "Le prénom est obligatoire")
     private String prenom;
-    
-    // Une date de naissance est obligatoire
-    @NotNull(message = "La date de naissance est obligatoire.")
+
+    // C'est cet attribut et ses getters/setters qui vous manquaient probablement
+    @NotNull(message = "La date de naissance est obligatoire")
     private LocalDate dateNaissance;
 
-    // ... Getters & Setters ...
+    // --- Getters et Setters ---
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    // Voici la méthode que le Mapper cherchait :
+    public LocalDate getDateNaissance() {
+        return dateNaissance;
+    }
+
+    public void setDateNaissance(LocalDate dateNaissance) {
+        this.dateNaissance = dateNaissance;
+    }
 }
